@@ -30,7 +30,7 @@ https://openjfx.io
 --module-path "Path to lib folder of JavaFX"
 --add-modules javafx.controls,javafx.graphics,javafx.fxml,javafx.media
 
-Make sure the path points to your JavaFX SDK `lib` folder.
+Make sure the path points to *your* JavaFX SDK `lib` folder.
 
 6. Click **Apply**, then **Run**.
 
