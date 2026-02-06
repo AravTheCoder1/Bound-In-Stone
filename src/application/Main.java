@@ -46,8 +46,8 @@ public class Main extends Application {
     private double playerX = 275; 
     private double playerY = 275; 
     private double playerSpeed = 5; 
-    private int UpLevel = 2;
-    private int RightLevel = 3;
+    private int UpLevel = 0;
+    private int RightLevel = 0;
     private String PersonSpeaking;
     private String DisplayText = ""; 
     private String FullWrappedText = ""; 
@@ -1305,6 +1305,11 @@ public class Main extends Application {
     	//Im not commenting ts
     	DrawBackground(gc);
     	DrawOrbs(gc);
+    	if (Beats < 5 && Beats > 4) {
+    		//I had to do this becuase of some glitch with the older song adding to Loop becuase when the player first loads in it doesnt switch the song instantly, ill fix that later
+    		//TODO
+    		Loop = 0;
+    	}
     	if (Beats > 5){
 	    	if (Beats > 96 && Loop > 0) {
 	    		Loop--;
@@ -1314,7 +1319,9 @@ public class Main extends Application {
 	    	if (Loop > 101) {
 	    		Loop = 101;
 	    	}
-	    	DrawNeonBlock(290, 0, 20, (int)Math.pow(1.0677,Loop), GLOW_CYAN, CORE_WHITE, false, true, gc);
+	    	if (Beats < 100) {
+	    		DrawNeonBlock(290, 0, 20, (int)Math.pow(1.0677,Loop), GLOW_CYAN, CORE_WHITE, false, true, gc);
+	    	}
             
             // ORB SCROLLING LOGIC
             // If the white wall is shrinking (Drop), move orbs down to simulate forward movement
@@ -1387,7 +1394,7 @@ public class Main extends Application {
         if (Beats > 86 && Beats < 97) {
             RedWall(0, ( 94 - (Beats)) * 100, 20, 600, gc);   
         }
-
+       
         if (Beats > 92 && Beats < 103) {
         	RedWall(0, ((Beats) - 94) * 180 - 400, 20, 220, gc);
         	RedWall(380, ((Beats) - 94) * 180 - 400, 20, 220, gc);
@@ -1409,48 +1416,9 @@ public class Main extends Application {
             RedWall(((Beats) - 108) * 140 - 200, 0, 200, 20, gc);
             RedWall(600 - (((Beats) - 108) * 140) + 200, 580, 200, 20, gc);
         }
-
-        if (Beats > 110 && Beats < 121) {
-            GreenWall(0, ((Beats) - 112) * 160 - 250, 20, 600, gc);
-        }
-
-        if (Beats > 114 && Beats < 125) {
-            RedWall(0, (119 - (Beats)) * 120, 20, 200, gc);
-            RedWall(580, (119 - (Beats)) * 120, 20, 200, gc);
-        }
-
-        if (Beats > 118 && Beats < 129) {
-            RedWall(((Beats) - 120) * 160 - 300, 200, 20, 200, gc);
-            RedWall(((Beats) - 120) * 160 - 300, 420, 20, 200, gc);
-        }
-
-        if (Beats > 122 && Beats < 133) {
-            GreenWall(0, ((Beats) - 124) * 180 - 350, 20, 600, gc);
-        }
-
-        if (Beats > 126 && Beats < 137) {
-            RedWall((132 - (Beats)) * 150, 0, 250, 20, gc);
-            RedWall((132 - (Beats)) * 150, 580, 250, 20, gc);
-        }
-
-        if (Beats > 130 && Beats < 141) {
-            RedWall(0, ((Beats) - 132) * 150 - 250, 20, 300, gc);
-            RedWall(580, ((Beats) - 132) * 150 - 250, 20, 300, gc);
-        }
-
-        if (Beats > 134 && Beats < 145) {
-            GreenWall(0, (139 - (Beats)) * 200, 20, 600, gc);
-        }
-
-        if (Beats > 138 && Beats < 149) {
-            RedWall(((Beats) - 140) * 180 - 300, 100, 20, 200, gc);
-            RedWall(((Beats) - 140) * 180 - 300, 400, 20, 200, gc);
-        }
-
-        if (Beats > 142 && Beats < 153) {
-            GreenWall(0, ((Beats) - 144) * 220 - 400, 20, 600, gc);
-        }
-
+        //128 is end of drop
+        //144 start of buildup
+        //192 start of second drop.
     }
 
 	private void TutorialLogic() {
