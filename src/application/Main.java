@@ -1,4 +1,16 @@
 package application;
+/*TODO
+ * 1. Put everything in its own class
+ * 2. make level creation SUPER easy, and customizable, I mean like you can put shadows anywhere, make glow, any color on anything, 
+ * transparency, size, and more.
+ * 3. make sure not too much GPU is being used - so just optimize.
+ * 4. make the levels run in O(1) - this might be a little bit of a stretch.
+ * 5. Finish level 1
+ * 
+ */
+
+
+
 
 //import stuff
 import javafx.animation.AnimationTimer;
@@ -1167,7 +1179,7 @@ public class Main extends Application {
 	
 	         //If touching any side, trigger game over
 	         if (min == distLeft || min == distRight || min == distTop || min == distBottom) {
-	              //GameOver = true;
+	             GameOver = true;
 	        	 //TODO
 	         }
 	     }
