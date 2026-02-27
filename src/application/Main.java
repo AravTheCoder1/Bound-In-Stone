@@ -6,7 +6,8 @@ package application;
  * 3. make sure not too much GPU is being used - so just optimize.
  * 4. make the levels run in O(1) - this might be a little bit of a stretch.
  * 5. Finish level 1
- * 
+ * 6. Make orbs do a little flash when you TP
+ * 7. Make white walls kill you if you get crushed
  */
 
 
