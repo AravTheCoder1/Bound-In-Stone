@@ -59,8 +59,8 @@ public class Main extends Application {
     private double playerX = 275; 
     private double playerY = 275; 
     private double playerSpeed = 5; 
-    private int UpLevel = 0;
-    private int RightLevel = 0;
+    private int UpLevel = 1;
+    private int RightLevel = 3;
     private String PersonSpeaking;
     private String DisplayText = ""; 
     private String FullWrappedText = ""; 
@@ -97,6 +97,7 @@ public class Main extends Application {
 	int Deaths = 0;
 	String dialogueText = "";
 	boolean SpokenToMaster = false;
+	int OrbFlashTimer = 0;
 
 	//NEW AND OPTIMIZED ART ASSETS!!! AND ORGANIZED!!
 	//Feels like when you organize the wires behind your desk or something.
@@ -118,7 +119,7 @@ public class Main extends Application {
     private final DropShadow neonGlow = new DropShadow(20, Color.LIME);
     private static final BoxBlur glitchEffect = new BoxBlur(5, 5, 1);
 
-    //Im just throwing stuff at te wall a this point and hope it sticks.
+    //Im just throwing stuff at the wall a this point and hope it sticks.
     private final Color GLOW_RED = Color.rgb(255, 0, 0, 0.15); 
     private final Color CORE_RED = Color.rgb(255, 50, 50, 1.0); 
     
@@ -160,7 +161,6 @@ public class Main extends Application {
 	ArrayList<Double> BlueYList = new ArrayList<>();
 	ArrayList<Double> OrangeXList = new ArrayList<>();
 	ArrayList<Double> OrangeYList = new ArrayList<>();
-	//TODO
 	
 	// Music System
     MediaPlayer mediaPlayer; 
@@ -401,9 +401,7 @@ public class Main extends Application {
     			Music = "";
     		}
     	}
-    	
-    	//The animation
-    	//TODO    	
+    	//The animation	
     	if (UpLevel == 1 && RightLevel == 3) {
     		if (SpokenToMaster == true) {
     			AnimationLoop = 83;
@@ -1180,7 +1178,7 @@ public class Main extends Application {
 	
 	         //If touching any side, trigger game over
 	         if (min == distLeft || min == distRight || min == distTop || min == distBottom) {
-	             GameOver = true;
+	             //GameOver = true;
 	        	 //TODO
 	         }
 	     }
@@ -1210,6 +1208,11 @@ public class Main extends Application {
 
             //draw blue orbs
             //glowish
+            if(OrbFlashTimer > 0) {
+            	gc.strokeArc(bx - OrbFlashTimer/2, by - OrbFlashTimer/2, OrbFlashTimer, OrbFlashTimer, 0, 360, ArcType.OPEN); //meth
+            	gc.strokeArc(ox - OrbFlashTimer/2, oy - OrbFlashTimer/2, OrbFlashTimer, OrbFlashTimer, 0, 360, ArcType.OPEN);
+
+            }
             gc.setGlobalBlendMode(BlendMode.ADD);
             gc.setGlobalAlpha(0.3); //this makes it transparent 
             gc.setFill(Color.BLUE);
@@ -1266,6 +1269,7 @@ public class Main extends Application {
     	    		playerY = oy;
     	    		TeleportCooldown = 20;
     	    		playSound("woosh.mp3");
+    	    		OrbFlashTimer = 10;
     	    	}
     	    }
     	    if (distOrange < 40) {
@@ -1436,7 +1440,7 @@ public class Main extends Application {
 
 	private void TutorialLogic() {
 		//Im not commenting ts
-	    System.out.println(Beats);
+	    System.out.println(OrbFlashTimer);
 		SpokenToMaster = true;
 		CurrentLevel = 0;
     	playerSpeed = 7;
@@ -1458,6 +1462,9 @@ public class Main extends Application {
 		} else {
 			PhaseCooldown--;
 		}
+		if(OrbFlashTimer > 0) {
+			OrbFlashTimer--;
+		}
 		if(PhaseTime > 0) {
 			PhaseTime--;
 		}
@@ -1467,9 +1474,9 @@ public class Main extends Application {
 		if (Beats > 11) {
 		    // Same math, just clamped so it finishes smoothly instead of snapping
 		    double t = ((Beats) - 11) / 9.0;
-
+		    
 		    if (t > 1) t = 1;
-		    if (t < 0) t = 0;
+		    if (t < 0) t = 0; //Future me here - Im sorry, what the hell is this? Like tf you mean "Same math".
 
 		    AddOrb(
 		        (t * 195) - 75,
