@@ -21,6 +21,8 @@ https://openjfx.io
 
 ## How to Run
 
+You could watch this video here to download JavaFX in Eclipse: https://www.youtube.com/watch?v=nz8P528uGjk
+
 1. Open the project in Eclipse.
 2. Right-click the project → **Run As → Run Configurations…**
 3. Select your main class.
