@@ -1,3 +1,5 @@
+# CODE IS IN MASTER
+
 # Bound-In-Stone
 **Bound In Stone** is a rhythm-based JavaFX game originally made as a school project and expanded into a full personal coding project.  
 The level design, timing, and visuals are all synced to music, with gameplay built around beats, movement patterns, and precision.
