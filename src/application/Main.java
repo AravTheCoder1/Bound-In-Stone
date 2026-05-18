@@ -11,8 +11,6 @@ package application;
  */
 
 
-
-
 //import stuff
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -56,11 +54,12 @@ public class Main extends Application {
     private final int HEIGHT = 600;
 
     //Game Vars (too many)
-    private double playerX = 275; 
-    private double playerY = 275; 
-    private double playerSpeed = 5; 
-    private int UpLevel = 1;
-    private int RightLevel = 3;
+    private Player player = new Player(275.0, 275.0, 5.0);
+    public double playerX = 275;
+    public double playerY = 275;
+    public double playerSpeed = 5;
+    private int UpLevel = 0;
+    private int RightLevel = 0;
     private String PersonSpeaking;
     private String DisplayText = ""; 
     private String FullWrappedText = ""; 
@@ -98,6 +97,7 @@ public class Main extends Application {
 	String dialogueText = "";
 	boolean SpokenToMaster = false;
 	int OrbFlashTimer = 0;
+	int OrbFlashSet = -1;
 
 	//NEW AND OPTIMIZED ART ASSETS!!! AND ORGANIZED!!
 	//Feels like when you organize the wires behind your desk or something.
@@ -1208,11 +1208,6 @@ public class Main extends Application {
 
             //draw blue orbs
             //glowish
-            if(OrbFlashTimer > 0) {
-            	gc.strokeArc(bx - OrbFlashTimer/2, by - OrbFlashTimer/2, OrbFlashTimer, OrbFlashTimer, 0, 360, ArcType.OPEN); //meth
-            	gc.strokeArc(ox - OrbFlashTimer/2, oy - OrbFlashTimer/2, OrbFlashTimer, OrbFlashTimer, 0, 360, ArcType.OPEN);
-
-            }
             gc.setGlobalBlendMode(BlendMode.ADD);
             gc.setGlobalAlpha(0.3); //this makes it transparent 
             gc.setFill(Color.BLUE);
@@ -1247,6 +1242,13 @@ public class Main extends Application {
             //backwards spinning compared to the blue ones
             gc.strokeArc(ox + 5, oy + 5, 40, 40, -(PortalChangeLoop * 10), 100, ArcType.OPEN);
             gc.strokeArc(ox + 5, oy + 5, 40, 40, -(PortalChangeLoop * 10) + 180, 100, ArcType.OPEN);
+            if(OrbFlashTimer > 0 && OrbFlashSet == i) {
+            	gc.strokeArc(bx - 5* OrbFlashTimer / 2 + 25, by - 5* OrbFlashTimer / 2 + 25, 5*OrbFlashTimer, 5*OrbFlashTimer, 0, 360, ArcType.OPEN); //meth
+            	gc.strokeArc(ox - 5* OrbFlashTimer / 2 + 25, oy - 5* OrbFlashTimer / 2 + 25, 5*OrbFlashTimer, 5*OrbFlashTimer, 0, 360, ArcType.OPEN);
+            	//TODO
+            	//Draw the orb flash, and make sure it flashes on ONLY the orb set clicked.
+            	//Maybe like get the location of where in the lists it was when clicked?
+            }
         }
         
         //clear lists so no overlap for next iteration
@@ -1269,7 +1271,8 @@ public class Main extends Application {
     	    		playerY = oy;
     	    		TeleportCooldown = 20;
     	    		playSound("woosh.mp3");
-    	    		OrbFlashTimer = 10;
+    	    		OrbFlashTimer = 20;
+    	    		OrbFlashSet = i;
     	    	}
     	    }
     	    if (distOrange < 40) {
@@ -1278,6 +1281,8 @@ public class Main extends Application {
     	    		playerY = by;
     	    		TeleportCooldown = 20;
     	    		playSound("woosh.mp3");
+    	    		OrbFlashTimer = 20;
+    	    		OrbFlashSet = i;
     	    	}
     	    }
     	}
@@ -1440,7 +1445,7 @@ public class Main extends Application {
 
 	private void TutorialLogic() {
 		//Im not commenting ts
-	    System.out.println(OrbFlashTimer);
+	    //System.out.println();
 		SpokenToMaster = true;
 		CurrentLevel = 0;
     	playerSpeed = 7;
@@ -1465,6 +1470,9 @@ public class Main extends Application {
 		if(OrbFlashTimer > 0) {
 			OrbFlashTimer--;
 		}
+		if(OrbFlashTimer == 0) {
+			OrbFlashSet = -1;
+		}
 		if(PhaseTime > 0) {
 			PhaseTime--;
 		}
@@ -1478,12 +1486,8 @@ public class Main extends Application {
 		    if (t > 1) t = 1;
 		    if (t < 0) t = 0; //Future me here - Im sorry, what the hell is this? Like tf you mean "Same math".
 
-		    AddOrb(
-		        (t * 195) - 75,
-		        (Math.sin(PortalChangeLoop)) * 250 + 270,
-		        620 - (t * 195),
-		        (Math.sin(PortalChangeLoop) * -1) * 250 + 270
-		    );
+		    AddOrb((t * 195) - 75,(Math.sin(PortalChangeLoop)) * 250 + 270,620 - (t * 195),(Math.sin(PortalChangeLoop) * -1) * 250 + 270);
+		    AddOrb(100 , 100,400,400);
 		}
 
 		CheckOrbs();
