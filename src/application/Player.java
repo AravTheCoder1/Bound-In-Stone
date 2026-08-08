@@ -35,7 +35,12 @@ public class Player {
     public void setSpeed(double speed) {
         this.speed = speed;
     }
-    
+    public void changeY(double yChange) {
+    	this.y += yChange;
+    }
+    public void changeX(double xStep) { //Holy GD reference
+    	this.x += xStep;
+    }
     public void updateMovement(boolean goUp, boolean goDown, boolean goLeft, boolean goRight) {
         //Code for moving player
         if (goUp && goRight && goLeft && goDown){

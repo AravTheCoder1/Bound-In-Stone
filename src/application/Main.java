@@ -1,5 +1,7 @@
 package application;
 /*TODO
+ * dialogue box = hitbox glitch
+ * player exclamation mark move when player isnt
  * 1. Put everything in its own class
  * 2. make level creation SUPER easy, and customizable, I mean like you can put shadows anywhere, make glow, any color on anything, 
  * transparency, size, and more.
@@ -17,7 +19,7 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.image.Image;
+import javafx.scene.image.Image;  
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
@@ -42,6 +44,7 @@ import javafx.scene.effect.BoxBlur;
 import javafx.scene.effect.InnerShadow;
 import javafx.scene.effect.Lighting;
 import javafx.scene.effect.Light;
+import javafx.stage.Screen;
 
 //Forgive me for not knowing how to use other files it has caused this single file to be over 1000 lines long
 public class Main extends Application {
@@ -55,9 +58,6 @@ public class Main extends Application {
 
     //Game Vars (too many)
     private Player player = new Player(275.0, 275.0, 5.0);
-    public double playerX = 275;
-    public double playerY = 275;
-    public double playerSpeed = 5;
     private int UpLevel = 0;
     private int RightLevel = 0;
     private String PersonSpeaking;
@@ -145,7 +145,7 @@ public class Main extends Application {
 
     String[] stage2Lines = {
         "I could have sworn I just left town...",
-        "Wait... I’ve seen this before. Major déjà vu.",
+        "Wait... I've seen this before. Major déjà vu.",
         "My head is spinning. Why does everything feel so familiar?",
         "Okay, vivid imagination today. Shake it off."
     };
@@ -153,7 +153,7 @@ public class Main extends Application {
         "Why do I keep picturing myself dying? Get a grip!",
         "It feels so real... I can almost feel the phantom pain.",
         "Am I cursed? I feel like I'm stuck in a loop.",
-        "I’m losing my mind. Just... one foot in front of the other."
+        "I'm losing my mind. Just... one foot in front of the other."
     };
 	
 	//arrays
@@ -180,6 +180,10 @@ public class Main extends Application {
     private int drawText = -1;
     private int talkCooldown = 0;
     
+    //The screen size vars
+    Screen screen = Screen.getPrimary();
+    double screenHeight = screen.getBounds().getHeight();
+    double screenWidth = screen.getBounds().getWidth();
 
     //Input Vars
     private boolean goUp, goDown, goLeft, goRight, interact, pause, teleport;
@@ -224,6 +228,12 @@ public class Main extends Application {
             
             //Taskbar image
             primaryStage.getIcons().add(icon);
+            
+            //Screen size min/max
+            primaryStage.setMinWidth(614); 
+            primaryStage.setMaxWidth(screenWidth); 
+            primaryStage.setMinHeight(637);
+            primaryStage.setMaxHeight(screenHeight);
             
             //title
             primaryStage.setTitle("Bound In Stone");
@@ -318,7 +328,7 @@ public class Main extends Application {
                             }
                     	}
                     	if(Paused == false && CanMove == true && TransitionCounter == 0) {
-                    		updateMovement();
+                    		player.updateMovement(goUp, goDown, goLeft, goRight);
                     	}
                     } else {
                     	CheckPause(gc);
@@ -329,7 +339,7 @@ public class Main extends Application {
                             drawGame(gc);	
                     	}
                     	if(Paused == false && CanMove == true && TransitionCounter == 0) {
-                    		updateMovement();
+                    		player.updateMovement(goUp, goDown, goLeft, goRight);
                     	}
                     }
                     
@@ -407,28 +417,28 @@ public class Main extends Application {
     			AnimationLoop = 83;
     			MasterDialogue = 7;
     			SpokenToMaster = false;
-    			playerX = 320;
-    			playerY = 400;
+    			player.setX(320);
+    			player.setY(400);
     		}
     		CanMove = false;
     		if (AnimationLoop == 0) {
-    			playerX = 275;
-    			playerY = 600;
+    			player.setX(275);
+    			player.setY(600);
     		}
     		if (AnimationLoop < 33) {
-    			playerX = 275;
-    			playerY -= 3;
+    			player.setX(275);
+    			player.changeY(-3);
     		}
     		if (AnimationLoop == 33 && MasterDialogue == 0) {
     			MasterDialogue += 1;
     			WriteText("Master", "You're late. The others have already arrived. Take your spot. Now.");
     		}
     		if (AnimationLoop < 51 && AnimationLoop > 33) {
-    			playerX += 2.598;
-    			playerY -= 1.5;
+    			player.changeX(2.598);
+    			player.changeY(-1.5);
     		}
     		if (AnimationLoop < 76 && AnimationLoop > 51) {
-    			playerY -= 3;
+    			player.changeY(-3);
     		}
     		if (AnimationLoop == 76 && MasterDialogue == 1) {
     			MasterDialogue += 1;
@@ -472,11 +482,11 @@ public class Main extends Application {
 
     	}
     	if (GameOver == true) {
-    		playerX = 275;
-    		playerY = 500;
+    		player.x = 275;
+    		player.y = 500;
 			UpLevel = 2;
 			RightLevel = 2;
-		    playerSpeed = 5;
+		    player.speed = 5;
 		    GameState = 1;
 			BeatIntensity = 0;
 			Beats = 0;
@@ -491,8 +501,8 @@ public class Main extends Application {
 		}
     	if (UpLevel == -100 && RightLevel == -100) {
     		if (TransitionCounter == 49) {
-    			playerX = 275;
-    			playerY = 275;
+    			player.setX(275);
+    			player.setY(275);
     		}
     		CanMove = true;
     		TutorialLogic();
@@ -515,34 +525,13 @@ public class Main extends Application {
     		PauseCooldown = 20;
     	}
     }
-    private void updateMovement() {
-        //Code for moving player
-        if (goUp && goRight) {
-            playerY -= playerSpeed/Math.sqrt(2);
-            playerX += playerSpeed/Math.sqrt(2);
-        } else if (goUp && goLeft) {
-            playerY -= playerSpeed/Math.sqrt(2);
-            playerX -= playerSpeed/Math.sqrt(2);
-        } else if (goDown && goLeft) {
-            playerY += playerSpeed/Math.sqrt(2);
-            playerX -= playerSpeed/Math.sqrt(2);
-        } else if (goDown && goRight) {
-            playerY += playerSpeed/Math.sqrt(2);
-            playerX += playerSpeed/Math.sqrt(2);
-        } else {
-            if (goUp) playerY -= playerSpeed;
-            if (goDown) playerY += playerSpeed;
-            if (goLeft) playerX -= playerSpeed;
-            if (goRight) playerX += playerSpeed;
-        }
-    }
 
     private void checkLevelScrolling(GraphicsContext gc) {
         if (TransitionCounter > 0) return;
         //left
-        if (playerX < -20) {
+        if (player.x < -20) {
             nextPlayerX = 500;
-            nextPlayerY = playerY;
+            nextPlayerY = player.y;
             nextRightLevel = RightLevel - 1;
             nextUpLevel = UpLevel;
             TransitionCounter = 100; 
@@ -551,9 +540,9 @@ public class Main extends Application {
             }
         }
         //right
-        if (playerX > WIDTH) {
+        if (player.x > WIDTH) {
             nextPlayerX = 50;
-            nextPlayerY = playerY;
+            nextPlayerY = player.y;
             nextRightLevel = RightLevel + 1;
             nextUpLevel = UpLevel;
             TransitionCounter = 100;
@@ -562,9 +551,9 @@ public class Main extends Application {
             }
         }
         //top
-        if (playerY > HEIGHT) {
+        if (player.y > HEIGHT) {
             nextPlayerY = 50;
-            nextPlayerX = playerX; // Default
+            nextPlayerX = player.x;
             nextUpLevel = UpLevel + 1;
             nextRightLevel = RightLevel;
             
@@ -579,9 +568,9 @@ public class Main extends Application {
             
         }
         //Bottom
-        if (playerY < -20) {
+        if (player.y < -20) {
             nextPlayerY = 500;
-            nextPlayerX = playerX; // Default
+            nextPlayerX = player.x;
             nextUpLevel = UpLevel - 1;
             nextRightLevel = RightLevel;
 
@@ -593,18 +582,18 @@ public class Main extends Application {
         //Level Specific transitions.
         
         if (UpLevel == 2 && RightLevel == 1) {
-        	if (playerY < 400) {
+        	if (player.y < 400) {
         		nextPlayerY = 525;
-                nextPlayerX = 138; // Default
+                nextPlayerX = 138;
                 nextUpLevel = UpLevel - 1;
                 nextRightLevel = RightLevel;
                 TransitionCounter = 100;
         	}
         }
         if (UpLevel == 2 && RightLevel == 3) {
-        	if (playerY < 300) {
+        	if (player.y < 300) {
         		nextPlayerY = 525;
-                nextPlayerX = 138; // Default
+                nextPlayerX = 138;
                 nextUpLevel = UpLevel - 1;
                 nextRightLevel = RightLevel;
                 TransitionCounter = 100;
@@ -614,47 +603,47 @@ public class Main extends Application {
     
     private void checkBoundaries() {
     	//TODO
-    	//System.out.println(playerX + ", " + playerY);
+    	//System.out.println(player.x + ", " + player.y);
         if (UpLevel == 100 && RightLevel == 100) {
-            if (playerX < 25) playerX = 25;
-            if (playerX > 535) playerX = 535;
-            if (playerY < 20) playerY = 20;
-            if (playerY > 535) playerY = 535;
+            if (player.x < 25) player.x = 25;
+            if (player.x > 535) player.x = 535;
+            if (player.y < 20) player.y = 20;
+            if (player.y > 535) player.y = 535;
         }
         if (UpLevel == 0 && RightLevel == 0) {
-        	if (playerX < 25) playerX = 25;
-            if (playerX > 535 && playerY < 200) playerX = 535;
-            if (playerX > 535 && playerY > 250) playerX = 535;
-            if (playerY < 20) playerY = 20;
-            if (playerY > 535) playerY = 535;
+        	if (player.x < 25) player.x = 25;
+            if (player.x > 535 && player.y < 200) player.x = 535;
+            if (player.x > 535 && player.y > 250) player.x = 535;
+            if (player.y < 20) player.y = 20;
+            if (player.y > 535) player.y = 535;
             //|||
-            if (playerX < 160 && playerY < 270) playerX = 160;
+            if (player.x < 160 && player.y < 270) player.x = 160;
             // ----
-            if (playerX < 160 && playerY < 280) playerY = 280;
-            if (playerX < 260 && playerY < 80) playerY = 80;
-            if (playerX < 265 && playerY < 75) playerX = 265;
-            if (playerX > 350 && playerY < 100) playerY = 100;
-            if (playerX > 345 && playerY < 90) playerX = 345;                              
+            if (player.x < 160 && player.y < 280) player.y = 280;
+            if (player.x < 260 && player.y < 80) player.y = 80;
+            if (player.x < 265 && player.y < 75) player.x = 265;
+            if (player.x > 350 && player.y < 100) player.y = 100;
+            if (player.x > 345 && player.y < 90) player.x = 345;                              
         }
         if (UpLevel == 0 && RightLevel == 1) {
-        	if (playerX < 25 && playerY < 200) playerX = 25;
-            if (playerX < 25 && playerY > 250) playerX = 25;
-        	if (playerX > 335) playerX = 335;
-            if (playerY < 20) playerY = 20;
-            if (playerY > 535 && playerX < 305) playerY = 535;
-            if (playerX > 245 && playerY > 60 && playerX < 255) playerX = 245;
-            if (playerX > 290 && playerY > 60 && playerX < 310) playerX = 310;
-            if (playerX > 250 && playerY > 60 && playerX < 310) playerY = 60;
+        	if (player.x < 25 && player.y < 200) player.x = 25;
+            if (player.x < 25 && player.y > 250) player.x = 25;
+        	if (player.x > 335) player.x = 335;
+            if (player.y < 20) player.y = 20;
+            if (player.y > 535 && player.x < 305) player.y = 535;
+            if (player.x > 245 && player.y > 60 && player.x < 255) player.x = 245;
+            if (player.x > 290 && player.y > 60 && player.x < 310) player.x = 310;
+            if (player.x > 250 && player.y > 60 && player.x < 310) player.y = 60;
             
         }
         if (UpLevel == 1 && RightLevel == 1) {
-            if (playerX < 15) playerX = 15;
-            if (playerX > 465) playerX = 465;
-            if (playerY < 210 && playerX > 105) playerY = 210;
-            if (playerX > 50 && playerX < 60 && playerY < 270) playerX = 50;
-            if (playerX > 105 && playerX < 115 && playerY < 270) playerX = 115;
-            if (playerX > 50 && playerX < 115 && playerY < 270) playerY = 270;
-            if (playerX < 25 && playerY < 275) playerX = 25;
+            if (player.x < 15) player.x = 15;
+            if (player.x > 465) player.x = 465;
+            if (player.y < 210 && player.x > 105) player.y = 210;
+            if (player.x > 50 && player.x < 60 && player.y < 270) player.x = 50;
+            if (player.x > 105 && player.x < 115 && player.y < 270) player.x = 115;
+            if (player.x > 50 && player.x < 115 && player.y < 270) player.y = 270;
+            if (player.x < 25 && player.y < 275) player.x = 25;
             Hitbox(225, 330, 455, 475);
             Hitbox(265, 485, 360, 549);
             Hitbox(165, 527, 660, 660);
@@ -662,21 +651,21 @@ public class Main extends Application {
 
         }
         if (UpLevel == 2 && RightLevel == 1) {
-            if (playerY < 428 && playerX > 378) playerY = 428;
-            if (playerY > 535) playerY = 535;
+            if (player.y < 428 && player.x > 378) player.y = 428;
+            if (player.y > 535) player.y = 535;
         	Hitbox(0, 0, 168, 428);
         	Hitbox(183, 0, 459, 428);
         	Hitbox(183, 0, 459, 428);
         	Hitbox(438, 418, 514, 477);
         }
         if (UpLevel == 2 && RightLevel == 0) {
-            if (playerX < 25) playerX = 25;
-            if (playerY < 438) playerY = 438;
-            if (playerY > 535) playerY = 535;
+            if (player.x < 25) player.x = 25;
+            if (player.y < 438) player.y = 438;
+            if (player.y > 535) player.y = 535;
         }
         if (UpLevel == 2 && RightLevel == 2) {
-            if (playerY < 180) playerY = 180;
-            if (playerY > 535) playerY = 535;
+            if (player.y < 180) player.y = 180;
+            if (player.y > 535) player.y = 535;
             Hitbox(-35,-35,185,190);
             Hitbox(365,-20,700,190);
             Hitbox(-35,-25,90,228);
@@ -693,17 +682,17 @@ public class Main extends Application {
             
         }
         if (UpLevel == 2 && RightLevel == 3) {
-        	if(playerY > 510) playerY = 510;
-        	if(playerX > 480) playerX = 480;
+        	if(player.y > 510) player.y = 510;
+        	if(player.x > 480) player.x = 480;
         	Hitbox(330, 440, 600, 600);
         	Hitbox(-30, 430, 115, 650);
         	Hitbox(-30, -30, 215, 315);
         }
         if (UpLevel == -100 && RightLevel == -100) {
-        	if(playerY > 550) playerY = 550;
-        	if(playerY < 0) playerY = 0;
-        	if(playerX > 550) playerX = 550;
-        	if(playerX < 0) playerX = 0;
+        	if(player.y > 550) player.y = 550;
+        	if(player.y < 0) player.y = 0;
+        	if(player.x > 550) player.x = 550;
+        	if(player.x < 0) player.x = 0;
         	
         }
         
@@ -721,7 +710,7 @@ public class Main extends Application {
         if (UpLevel == 0 && RightLevel == 0) {
             gc.drawImage(LevelOne, 0, 0, 600, 600);	
             createInteraction(gc, 320, 40, "Painting", "A painting of Starry night", null); 
-            gc.drawImage(PlayerImg, (int)playerX, (int)playerY, 50, 50);
+            gc.drawImage(PlayerImg, (int)player.x, (int)player.y, 50, 50);
         }
         if (UpLevel == 0 && RightLevel == 1) {
             gc.drawImage(LevelTwo, 0, 0, 600, 600);	
@@ -779,14 +768,14 @@ public class Main extends Application {
         }
         //draw player
         if (goLeft == true && goRight == true) {
-        	gc.drawImage(PlayerImg, (int)playerX, (int)playerY, 50, 50);
+        	gc.drawImage(PlayerImg, (int)player.x, (int)player.y, 50, 50);
         } else if(goLeft == true && CanMove == true) {
-        	gc.drawImage(PlayerLeft, (int)playerX, (int)playerY, 50, 50);
+        	gc.drawImage(PlayerLeft, (int)player.x, (int)player.y, 50, 50);
         }
         else if(goRight == true && CanMove == true) {
-        	gc.drawImage(PlayerRight, (int)playerX, (int)playerY, 50, 50);
+        	gc.drawImage(PlayerRight, (int)player.x, (int)player.y, 50, 50);
         } else {
-        	gc.drawImage(PlayerImg, (int)playerX, (int)playerY, 50, 50);
+        	gc.drawImage(PlayerImg, (int)player.x, (int)player.y, 50, 50);
         }
         gc.setGlobalAlpha(1); 
         
@@ -827,11 +816,11 @@ public class Main extends Application {
         }
 
         //check distance
-        boolean isNear = (Math.abs(playerX - targetX) < 65) && (Math.abs(playerY - targetY) < 65);
+        boolean isNear = (Math.abs(player.x - targetX) < 65) && (Math.abs(player.y - targetY) < 65);
 
         //draw Exclamation
         if (isNear && drawText == -1) {
-            gc.drawImage(ExclamationImg, playerX +2 , playerY - 50, 45, 45); 
+            gc.drawImage(ExclamationImg, player.x +2 , player.y - 50, 45, 45); 
         }
 
         //interaction
@@ -920,22 +909,22 @@ public class Main extends Application {
     }
     private void Hitbox(double x1, double y1, double x2, double y2) {
         //Check if player is in the box
-        if (playerX > x1 && playerX < x2 && playerY > y1 && playerY < y2) {
+        if (player.x > x1 && player.x < x2 && player.y > y1 && player.y < y2) {
             
             //Calculate how far the player is from each edge
-            double distLeft = playerX - x1;
-            double distRight = x2 - playerX;
-            double distTop = playerY - y1;
-            double distBottom = y2 - playerY;
+            double distLeft = player.x - x1;
+            double distRight = x2 - player.x;
+            double distTop = player.y - y1;
+            double distBottom = y2 - player.y;
 
             //to find the smallest distance
             double min = Math.min(Math.min(distLeft, distRight), Math.min(distTop, distBottom));
 
             // push the player out the closest way
-            if (min == distLeft) playerX = x1;
-            else if (min == distRight) playerX = x2;
-            else if (min == distTop) playerY = y1;
-            else if (min == distBottom) playerY = y2;
+            if (min == distLeft) player.x = x1;
+            else if (min == distRight) player.x = x2;
+            else if (min == distTop) player.y = y1;
+            else if (min == distBottom) player.y = y2;
         }
     }
     private void Transition(GraphicsContext gc) {
@@ -962,8 +951,8 @@ public class Main extends Application {
     	if (TransitionCounter == 50){
         	temp = 1;
         	//teleport play at 50
-        	playerX = nextPlayerX;
-        	playerY = nextPlayerY;
+        	player.x = nextPlayerX;
+        	player.y = nextPlayerY;
         	RightLevel = nextRightLevel;
         	UpLevel = nextUpLevel;
         }
@@ -1167,18 +1156,18 @@ public class Main extends Application {
     }
 	 //I made this because the same thing is copied for the red & green walls
 	 private void checkWallCollision(double WallX, double WallY, double WallH, double WallW, boolean alwaysKill) {
-	     if (playerX > WallX - 50 && playerX < WallX + WallW && playerY > WallY - 50 && playerY <  WallY + WallH) {
+	     if (player.x > WallX - 50 && player.x < WallX + WallW && player.y > WallY - 50 && player.y <  WallY + WallH) {
 	             
-	         double distLeft = playerX - WallX - 50;
-	         double distRight = WallX + WallW - playerX;
-	         double distTop = playerY - WallY - 50;
-	         double distBottom = WallY + WallH - playerY;
+	         double distLeft = player.x - WallX - 50;
+	         double distRight = WallX + WallW - player.x;
+	         double distTop = player.y - WallY - 50;
+	         double distBottom = WallY + WallH - player.y;
 	
 	         double min = Math.min(Math.min(distLeft, distRight), Math.min(distTop, distBottom));
 	
 	         //If touching any side, trigger game over
 	         if (min == distLeft || min == distRight || min == distTop || min == distBottom) {
-	             //GameOver = true;
+	             GameOver = true;
 	        	 //TODO
 	         }
 	     }
@@ -1263,12 +1252,12 @@ public class Main extends Application {
     	    Double by = BlueYList.get(i);
     	    Double ox = OrangeXList.get(i);
     	    Double oy = OrangeYList.get(i);
-    	    double distBlue = Math.sqrt(Math.pow((playerX + 25) - (bx + 30), 2) + Math.pow((playerY + 25) - (by + 30), 2));
-    	    double distOrange = Math.sqrt(Math.pow((playerX + 25) - (ox + 30), 2) + Math.pow((playerY + 25) - (oy + 30), 2));
+    	    double distBlue = Math.sqrt(Math.pow((player.x + 25) - (bx + 30), 2) + Math.pow((player.y + 25) - (by + 30), 2));
+    	    double distOrange = Math.sqrt(Math.pow((player.x + 25) - (ox + 30), 2) + Math.pow((player.y + 25) - (oy + 30), 2));
     	    if (distBlue < 40) {
     	    	if (teleport == true && TeleportCooldown == 0) {
-    	    		playerX = ox;
-    	    		playerY = oy;
+    	    		player.x = ox;
+    	    		player.y = oy;
     	    		TeleportCooldown = 20;
     	    		playSound("woosh.mp3");
     	    		OrbFlashTimer = 20;
@@ -1277,8 +1266,8 @@ public class Main extends Application {
     	    }
     	    if (distOrange < 40) {
     	    	if (teleport == true && TeleportCooldown == 0) {
-    	    		playerX = bx;
-    	    		playerY = by;
+    	    		player.x = bx;
+    	    		player.y = by;
     	    		TeleportCooldown = 20;
     	    		playSound("woosh.mp3");
     	    		OrbFlashTimer = 20;
@@ -1445,10 +1434,11 @@ public class Main extends Application {
 
 	private void TutorialLogic() {
 		//Im not commenting ts
+		//And now when im refactoring i dont understand a single bit of it because i decided not to comment
 	    //System.out.println();
 		SpokenToMaster = true;
 		CurrentLevel = 0;
-    	playerSpeed = 7;
+    	player.speed = 7;
 		GameState = 2;
         PortalChangeLoop += 0.03;
         if (PortalChangeLoop > 359) {
@@ -1484,10 +1474,9 @@ public class Main extends Application {
 		    double t = ((Beats) - 11) / 9.0;
 		    
 		    if (t > 1) t = 1;
-		    if (t < 0) t = 0; //Future me here - Im sorry, what the hell is this? Like tf you mean "Same math".
+		    if (t < 0) t = 0; //Future here -  what the hell is this? Like tf you mean "Same math".
 
 		    AddOrb((t * 195) - 75,(Math.sin(PortalChangeLoop)) * 250 + 270,620 - (t * 195),(Math.sin(PortalChangeLoop) * -1) * 250 + 270);
-		    AddOrb(100 , 100,400,400);
 		}
 
 		CheckOrbs();
@@ -1495,4 +1484,3 @@ public class Main extends Application {
 	}
 	
 }
-//stupid 1500 lines of code jusr bc i dont rly know how to use classes and packages that well.
